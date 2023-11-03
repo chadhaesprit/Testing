@@ -1,0 +1,20 @@
+<dataset>
+    <STOCK ID_STOCK="2" title="stock 1" />
+    <STOCK ID_STOCK="3" title="stock new" />
+    <PRODUCT
+            ID_PRODUCT="2"
+            TITLE="Produit1"
+            PRICE="19.99"
+            QUANTITY="10"
+            CATEGORY="CLOTHING"
+            STOCK_ID_STOCK="2"
+    />
+    <PRODUCT
+            ID_PRODUCT="3"
+            TITLE="Produit2"
+            PRICE="29.99"
+            QUANTITY="5"
+            CATEGORY="ELECTRONICS"
+            STOCK_ID_STOCK="3"
+    />
+</dataset>
