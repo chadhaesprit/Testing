@@ -52,7 +52,7 @@ services:
   front-end:
     image: chadha122/angulardevops:tag  # Assurez-vous que l'image correcte est disponible sur Docker Hub
     ports:
-      - "87:87"  # Vous pouvez mapper le port 80 du conteneur au port 80 de l'hôte
+      - "8088:8088"  # Vous pouvez mapper le port 80 du conteneur au port 80 de l'hôte
     networks:
       - mon_reseau
 
