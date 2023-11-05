@@ -2,10 +2,6 @@
 <dataset>
     <stock
             title="stock 1"
-            ID_STOCK="2"
-    />
-    <stock
-            title="stock new"
-            ID_STOCK="3"
+            ID_STOCK="1"
     />
 </dataset>

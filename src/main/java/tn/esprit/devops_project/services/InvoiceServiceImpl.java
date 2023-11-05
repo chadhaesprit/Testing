@@ -24,8 +24,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
 	final OperatorRepository operatorRepository;
 	final InvoiceDetailRepository invoiceDetailRepository;
 	final SupplierRepository supplierRepository;
-
-
+	
 	@Override
 	public List<Invoice> retrieveAllInvoices() {
 		return invoiceRepository.findAll();
@@ -62,16 +61,7 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
 	@Override
 	public float getTotalAmountInvoiceBetweenDates(Date startDate, Date endDate) {
-		long startTime = System.currentTimeMillis();
-		// Votre logique pour calculer le montant total entre les dates startDate et endDate
-		long endTime = System.currentTimeMillis();
-
-		// Calculez la durée d'exécution en millisecondes
-		long executionTime = endTime - startTime;
-
-		// Enregistrez la durée d'exécution en tant que métrique personnalisée
 		return invoiceRepository.getTotalAmountInvoiceBetweenDates(startDate, endDate);
-
 	}
 
 

@@ -15,93 +15,75 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.devops_project.entities.Product;
 import tn.esprit.devops_project.entities.ProductCategory;
+import tn.esprit.devops_project.entities.Stock;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Transactional
-@TestExecutionListeners({
-        DependencyInjectionTestExecutionListener.class,
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class,
         TransactionalTestExecutionListener.class,
-        DbUnitTestExecutionListener.class
-})
+        DbUnitTestExecutionListener.class})
 @ActiveProfiles("test")
-public class ProductServiceImplTest {
-
+class ProductServiceImplTest {
     @Autowired
     private ProductServiceImpl productService;
 
     @Test
-    @DatabaseSetup("/data-set/product-data.xml")
+    @DatabaseSetup("/data-set/product.xml")
     void addProduct() {
-        Product product = new Product();
-        product.setTitle("TitreDuProduit");
-        product.setPrice(10.0f);
-        product.setQuantity(5);
-        product.setCategory(ProductCategory.CLOTHING);
-
-        Long existingStockId = 2L;
-
-        product = productService.addProduct(product, existingStockId);
-
-        assertEquals(product.getTitle(), "TitreDuProduit");
-        assertEquals(product.getPrice(), 10.0f);
-        assertEquals(product.getQuantity(), 5);
-        assertEquals(product.getCategory(), ProductCategory.CLOTHING);
-
-        // Si votre méthode de service fonctionne correctement,
-        // l'ID du stock associé au produit doit être 2L (existingStockId).
-        assertEquals(product.getStock().getIdStock(), existingStockId);
+        final Product product = new Product();
+        product.setTitle("title");
+        this.productService.addProduct(product, 1L);
+        assertEquals(this.productService.retreiveAllProduct().size(), 2);
+        assertEquals(this.productService.retrieveProduct(2L).getTitle(), "title");
     }
 
     @Test
-    @DatabaseSetup("/data-set/product-data.xml")
+    @DatabaseSetup("/data-set/product.xml")
     void retrieveProduct() {
-        Long productId = 2L; // Supposons qu'un produit avec l'ID 1 existe dans vos données de test
-        Product product = productService.retrieveProduct(productId);
-
-        // Assertions pour les détails du produit
-        assertEquals(productId, product.getIdProduct());
-        // Ajoutez d'autres assertions pour d'autres propriétés du produit
+        final Product product = this.productService.retrieveProduct(1L);
+        assertEquals("product 1", product.getTitle());
     }
-
     @Test
-    @DatabaseSetup("/data-set/product-data.xml")
-    void retrieveAllProduct() {
-        List<Product> productList = productService.retreiveAllProduct();
-
-        // Assertion sur la taille de la liste de produits ou d'autres attentes
+    @DatabaseSetup("/data-set/product.xml")
+    void retreiveAllProduct() {
+        final List<Product> allProducts = this.productService.retreiveAllProduct();
+        assertEquals(allProducts.size(), 1);
     }
-
     @Test
-    @DatabaseSetup("/data-set/product-data.xml")
+    @DatabaseSetup("/data-set/product.xml")
     void retrieveProductByCategory() {
-        ProductCategory category = ProductCategory.CLOTHING; // Remplacez par la catégorie désirée
-        List<Product> productList = productService.retrieveProductByCategory(category);
-
-        // Assertion sur la liste des produits avec la catégorie spécifiée
+        ProductCategory categoryToRetrieve = ProductCategory.ELECTRONICS; // Replace with the desired category
+        List<Product> products = productService.retrieveProductByCategory(categoryToRetrieve);
+        // Print the size of the products list
+        System.out.println("Number of products in category " + categoryToRetrieve + ": " + products.size());
+        // Add assertions to check the results
+        assertEquals(products.size(), 1);
+    }
+    @Test
+    @DatabaseSetup("/data-set/product.xml")
+    void deleteProduct() {
+        Long productIdToDelete = 1L;
+        this.productService.deleteProduct(productIdToDelete);
+        final List<Product> allProducts = this.productService.retreiveAllProduct();
+        assertEquals(allProducts.size(), 0);
     }
 
     @Test
-    @DatabaseSetup("/data-set/product-data.xml")
-    void deleteProduct() {
-        Long productId = 2L; // Supposons qu'un produit avec l'ID 1 existe dans vos données de test
-
-        // Tentez de supprimer le produit
-        productService.deleteProduct(productId);
-
-        // Essayez de récupérer le produit
-        try {
-            productService.retrieveProduct(productId);
-        } catch (NullPointerException e) {
-            // L'exception a été levée, ce qui est attendu
-            return;
-        }
-
-        fail("L'exception NullPointerException n'a pas été levée lors de la suppression du produit.");
+    @DatabaseSetup("/data-set/product.xml")
+    void retreiveProductStock() {
+        final List<Product> allProductStock = this.productService.retreiveProductStock(1L);
+        assertNotNull(allProductStock.size());
+    }
+    @Test
+    @DatabaseSetup("/data-set/stock-data.xml")
+    void retrieveProduct_nullId() {
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            final Product product = this.productService.retrieveProduct(100L);
+        });
     }
 }

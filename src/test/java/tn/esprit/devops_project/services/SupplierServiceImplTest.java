@@ -13,13 +13,11 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 import org.springframework.transaction.annotation.Transactional;
-import tn.esprit.devops_project.entities.Supplier;
-import tn.esprit.devops_project.entities.SupplierCategory;
+import tn.esprit.devops_project.entities.*;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Transactional
@@ -29,43 +27,48 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         DbUnitTestExecutionListener.class})
 @ActiveProfiles("test")
 class SupplierServiceImplTest {
-
     @Autowired
     private SupplierServiceImpl supplierService;
 
     @Test
-    @DatabaseSetup("/data-set/supplier-data.xml")
+    @DatabaseSetup("/data-set/supplier.xml")
+    void retrieveAllSuppliers() {
+        final List<Supplier> supplierList = this.supplierService.retrieveAllSuppliers();
+        assertEquals(supplierList.size(), 1);
+    }
+    @Test
+    @DatabaseSetup("/data-set/supplier.xml")
     void addSupplier() {
         final Supplier supplier = new Supplier();
-        supplier.setCode("SupplierCode");
-        supplier.setLabel("SupplierLabel");
-        supplier.setSupplierCategory(SupplierCategory.ORDINAIRE);
-
+        supplier.setLabel("E0213");
         this.supplierService.addSupplier(supplier);
+        assertEquals(this.supplierService.retrieveAllSuppliers().size(),2);
+        assertEquals(this.supplierService.retrieveSupplier(2L).getLabel(), "E0213");
     }
 
     @Test
-    @DatabaseSetup("/data-set/supplier-data.xml")
+    @DatabaseSetup("/data-set/supplier.xml")
     void updateSupplier() {
-        Supplier supplier = this.supplierService.retrieveSupplier(2L);
-        supplier.setLabel("New Supplier Label");
-        this.supplierService.updateSupplier(supplier);
-        assertEquals(this.supplierService.retrieveSupplier(2L).getLabel(), "New Supplier Label");
+        final Supplier supplier = this.supplierService.retrieveSupplier(1L);
+        supplier.setCode("E2100");
+        supplierService.updateSupplier(supplier);
+        assertEquals(this.supplierService.retrieveSupplier(1L).getCode(), "E2100");
     }
-
-//    @Test
-//    @DatabaseSetup("/data-set/supplier-data.xml")
-//    void deleteSupplier() {
-//        Supplier supplier = this.supplierService.retrieveSupplier(1L);
-//        this.supplierService.deleteSupplier(supplier.getIdSupplier());
-//        assertNull(this.supplierService.retrieveSupplier(1L));
-//    }
 
     @Test
-    @DatabaseSetup("/data-set/supplier-data.xml")
-    void retrieveAllSuppliers() {
-        final List<Supplier> allSuppliers = this.supplierService.retrieveAllSuppliers();
-        assertEquals(allSuppliers.size(), 1);
+    @DatabaseSetup("/data-set/supplier.xml")
+    void deleteSupplier() {
+        Long supplieId = 1L;
+        this.supplierService.deleteSupplier(supplieId);
+        final List<Supplier> supplierList = this.supplierService.retrieveAllSuppliers();
+        assertEquals(supplierList.size(), 0);
     }
+    @Test
+    @DatabaseSetup("/data-set/supplier.xml")
+    void retrieveSupplier() {
+        final Supplier supplier = this.supplierService.retrieveSupplier(1L);
+        assertEquals("Supplier 1", supplier.getLabel());
+    }
+
 
 }

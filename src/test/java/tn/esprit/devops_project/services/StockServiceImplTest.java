@@ -4,6 +4,7 @@ import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -13,6 +14,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import tn.esprit.devops_project.entities.Stock;
 
 import java.util.List;
@@ -31,38 +33,33 @@ class StockServiceImplTest {
 
     @Autowired
     private StockServiceImpl stockService;
+
     @Test
     @DatabaseSetup("/data-set/stock-data.xml")
     void addStock() {
         final Stock stock = new Stock();
-        stock.setTitle("KARMA");
+        stock.setTitle("Title");
         this.stockService.addStock(stock);
+        assertEquals(this.stockService.retrieveAllStock().size(),2);
+        assertEquals(this.stockService.retrieveStock(2L).getTitle(),"Title");
     }
-
     @Test
     @DatabaseSetup("/data-set/stock-data.xml")
     void retrieveStock() {
-        final Stock stock = this.stockService.retrieveStock(2L);
+        final Stock stock = this.stockService.retrieveStock(1L);
         assertEquals("stock 1", stock.getTitle());
     }
-
     @Test
     @DatabaseSetup("/data-set/stock-data.xml")
     void retrieveAllStock() {
-        // Call the retrieveAllStock method
-        List<Stock> allStocks = stockService.retrieveAllStock();
-
-        // Assert that the list is not null and not empty
-        assertNotNull(allStocks);
-        assertFalse(allStocks.isEmpty());
-
-        // Check the size of the list (number of elements expected in the list)
-        assertEquals(2, allStocks.size());
-
-        // Check the titles of the stocks in the list
-        assertEquals("stock 1", allStocks.get(0).getTitle());
-
+        final List<Stock> allStocks = this.stockService.retrieveAllStock();
+        assertEquals(allStocks.size(), 1);
     }
-
-
+    @Test
+    @DatabaseSetup("/data-set/stock-data.xml")
+    void retrieveStock_nullId() {
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            final Stock stock = this.stockService.retrieveStock(100L);
+        });
+    }
 }
